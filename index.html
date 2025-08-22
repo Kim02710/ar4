@@ -68,54 +68,38 @@
 
         <!-- FIXED: Added markerhandler component and proper structure -->
         <a-nft
-            type="nft"
-            url="ar4/veil"
-            smooth="true"
-            smoothCount="10"
-            smoothTolerance="0.01"
-            smoothThreshold="5"
-            markerhandler
-            id="nft-marker"
-        >
-            <!-- Full-size video plane covering entire marker -->
-            <a-plane
-                id="video-plane"
-                position="0 0 0.01"
-                rotation="-90 0 0"
-                width="100"
-                height="100"
-                material="src: #video; transparent: false; alphaTest: 0; fit: cover;"
-                visible="true"
-                animation__show="property: material.opacity; from: 0; to: 1; dur: 1000; startEvents: markerFound"
-                animation__hide="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: markerLost"
-            ></a-plane>
-            
-            <!-- Backup full-size plane with different rotation -->
-            <a-plane
-                id="video-plane-2"
-                position="0 0 0.02"
-                rotation="0 0 0"
-                width="5"
-                height="5"
-                material="src: #video; transparent: false; side: double; fit: cover;"
-                visible="true"
-                animation__show2="property: material.opacity; from: 0; to: 1; dur: 1000; startEvents: markerFound"
-                animation__hide2="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: markerLost"
-            ></a-plane>
-            
-            <!-- Extra large backup plane -->
-            <a-plane
-                id="video-plane-3"
-                position="0 0 0.03"
-                rotation="-90 0 0"
-                width="10"
-                height="10"
-                material="src: #video; transparent: false; alphaTest: 0; fit: fill;"
-                visible="true"
-                opacity="0.9"
-                animation__show3="property: material.opacity; from: 0; to: 0.9; dur: 1000; startEvents: markerFound"
-                animation__hide3="property: material.opacity; from: 0.9; to: 0; dur: 500; startEvents: markerLost"
-            ></a-plane>
+    type="nft"
+    url="ar4/veil"
+    smooth="true"
+    smoothCount="10"
+    smoothTolerance="0.01"
+    smoothThreshold="5"
+    markerhandler
+    id="nft-marker"
+>
+    <!-- Single large video plane -->
+    <a-plane
+        id="video-plane"
+        position="0 0 0.01"
+        rotation="-90 0 0"
+        width="130"
+        height="130"
+        material="src: #video; transparent: true; alphaTest: 0.5; opacity: 1;"
+        visible="true"
+        animation__show="property: material.opacity; from: 0; to: 1; dur: 1000; startEvents: markerFound"
+        animation__hide="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: markerLost"
+        animation__scaleup="property: scale; from: 0.8 0.8 1; to: 1 1 1; dur: 800; startEvents: markerFound"
+    ></a-plane>
+    
+    <!-- Debug sphere to confirm marker detection -->
+    <a-sphere
+        position="0 0 3"
+        radius="0.5"
+        color="red"
+        animation__bounce="property: position; to: 0 0 4; dir: alternate; loop: true; dur: 1000"
+        visible="true"
+    ></a-sphere>
+</a-nft>
             
             <!-- Debug sphere to confirm marker detection -->
             <a-sphere
@@ -288,4 +272,5 @@
     </script>
 </body>
 </html>
+
 
