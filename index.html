@@ -278,31 +278,10 @@
             }
         }, { once: true });
 
-        // Maintain video's original aspect ratio when it loads
-video.addEventListener('loadedmetadata', function() {
-    const videoPlane = document.querySelector('#video-plane');
-    if (videoPlane && video.videoWidth && video.videoHeight) {
-        const aspectRatio = video.videoWidth / video.videoHeight;
-        const baseSize = 2; // Base size we set above
-        
-        // Adjust width or height based on aspect ratio
-        if (aspectRatio > 1) {
-            // Landscape video
-            videoPlane.setAttribute('width', baseSize * aspectRatio);
-            videoPlane.setAttribute('height', baseSize);
-        } else {
-            // Portrait or square video
-            videoPlane.setAttribute('width', baseSize);
-            videoPlane.setAttribute('height', baseSize / aspectRatio);
-        }
-        
-        console.log('Video aspect ratio maintained:', aspectRatio);
-        debugElement.textContent = 'Video aspect ratio maintained: ' + aspectRatio.toFixed(2);
-    }
-});
     </script>
 </body>
 </html>
+
 
 
 
