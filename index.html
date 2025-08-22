@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>WebAR with NFT Marker and Sketchfab Model</title>
+    <title>WebAR with NFT Marker and Video</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
     <style>
@@ -14,90 +14,209 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 100;
+            font-family: Arial, sans-serif;
+        }
+        #debug {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255,0,0,0.7);
             color: white;
             padding: 10px;
             border-radius: 5px;
             z-index: 100;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
     <div id="info">
-        Point your camera at the NFT marker image
+        Point your camera at the NFT marker image<br>
+        <small>Status: <span id="status">Loading...</span></small>
+    </div>
+    
+    <div id="debug">
+        Debug: <span id="debug-text">Initializing...</span>
     </div>
 
     <a-scene
-      vr-mode-ui="enabled: false;"
-      renderer="logarithmicDepthBuffer: true;"
-      embedded
-      arjs="trackingMethod: best; sourceType: webcam;debugUIEnabled: false;">
-
-        <a-nft
-    type="nft"
-    url="ar4/veil"
-    smooth="true"
-    smoothCount="10"
-    smoothTolerance="0.01"
-    smoothThreshold="5"
->
-    <a-plane
-        position="0 0 0"
-        rotation="-90 0 0"
-        width="2"
-        height="1.5"
-        material="src: #video"
-    ></a-plane>
-</a-nft>
+        vr-mode-ui="enabled: false;"
+        renderer="logarithmicDepthBuffer: true;"
+        embedded
+        arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
+    >
+        <!-- FIXED: Move assets before using them -->
         <a-assets>
-    <video
-        id="video"
-        src="veilvideo.mp4"
-        preload="auto"
-        loop
-        crossorigin="anonymous"
-        webkit-playsinline
-        playsinline
-        muted
-    ></video>
-</a-assets>
+            <video
+                id="video"
+                src="veilvideo.mp4"
+                preload="auto"
+                loop
+                crossorigin="anonymous"
+                webkit-playsinline
+                playsinline
+                muted
+                autoplay="false"
+            ></video>
+        </a-assets>
+
+        <!-- FIXED: Added markerhandler component and proper structure -->
+        <a-nft
+            type="nft"
+            url="ar4/veil"
+            smooth="true"
+            smoothCount="10"
+            smoothTolerance="0.01"
+            smoothThreshold="5"
+            markerhandler
+            id="nft-marker"
+        >
+            <a-plane
+                id="video-plane"
+                position="0 0 0"
+                rotation="-90 0 0"
+                width="2"
+                height="1.5"
+                material="src: #video; transparent: true;"
+                visible="true"
+            ></a-plane>
+        </a-nft>
 
         <a-entity camera></a-entity>
     </a-scene>
-</body>
-<script>
-// Get references
-const video = document.querySelector('#my-video');
-const marker = document.querySelector('a-nft');
 
-// Play on marker found
-marker.addEventListener('markerFound', () => {
-    video.play();
-});
+    <script>
+        // FIXED: Correct video element reference
+        const video = document.querySelector('#video');
+        const marker = document.querySelector('#nft-marker');
+        const statusElement = document.querySelector('#status');
+        const debugElement = document.querySelector('#debug-text');
+        
+        let markerFound = false;
 
-// Pause on marker lost
-marker.addEventListener('markerLost', () => {
-    video.pause();
-});
+        // FIXED: Proper event listeners with error handling
+        if (marker) {
+            marker.addEventListener('markerFound', () => {
+                console.log('Marker found!');
+                markerFound = true;
+                statusElement.textContent = 'Marker detected - Playing video';
+                debugElement.textContent = 'Marker found - Video should play';
+                
+                if (video) {
+                    video.play().then(() => {
+                        console.log('Video playing successfully');
+                        debugElement.textContent = 'Video playing';
+                    }).catch(error => {
+                        console.error('Video play failed:', error);
+                        debugElement.textContent = 'Video play failed: ' + error.message;
+                    });
+                } else {
+                    debugElement.textContent = 'Video element not found';
+                }
+            });
 
-      AFRAME.registerComponent('markerhandler', {
-        init: function () {
-          this.el.addEventListener('markerFound', () => {
-            var check = this.el.getAttribute("url");
-            alert(check);
-            // document.getElementById('show1').style.bottom = "0";
-            // document.getElementById('show2').style.bottom = "-110vh";
-            // document.getElementById('show3').style.bottom = "-110vh";
-          });
-          
-          this.el.addEventListener('markerLost', () => {
-            // document.getElementById('show1').style.bottom = "-110vh";
-            // document.getElementById('show2').style.bottom = "-110vh";
-            // document.getElementById('show3').style.bottom = "-110vh";
-          });
+            marker.addEventListener('markerLost', () => {
+                console.log('Marker lost!');
+                markerFound = false;
+                statusElement.textContent = 'Marker lost - Video paused';
+                debugElement.textContent = 'Marker lost - Video paused';
+                
+                if (video) {
+                    video.pause();
+                }
+            });
+        } else {
+            debugElement.textContent = 'ERROR: Marker element not found';
         }
-      });
-</script>
 
+        // FIXED: Proper component registration with error handling
+        AFRAME.registerComponent('markerhandler', {
+            init: function () {
+                console.log('Markerhandler component initialized');
+                debugElement.textContent = 'Markerhandler initialized';
+                
+                this.el.addEventListener('markerFound', () => {
+                    console.log('markerFound event triggered');
+                    var check = this.el.getAttribute("url");
+                    console.log('Marker URL:', check);
+                    debugElement.textContent = 'Marker found: ' + check;
+                });
+                
+                this.el.addEventListener('markerLost', () => {
+                    console.log('markerLost event triggered');
+                    debugElement.textContent = 'Marker lost';
+                });
+            }
+        });
+
+        // Additional debugging
+        video.addEventListener('loadeddata', () => {
+            console.log('Video loaded');
+            statusElement.textContent = 'Video loaded - Ready to scan';
+            debugElement.textContent = 'Video loaded successfully';
+        });
+
+        video.addEventListener('error', (e) => {
+            console.error('Video error:', e);
+            debugElement.textContent = 'Video error: ' + e.message;
+        });
+
+        // Check if NFT files exist
+        window.addEventListener('load', () => {
+            statusElement.textContent = 'Checking NFT files...';
+            
+            // Try to fetch NFT files to check if they exist
+            const nftPath = 'ar4/veil';
+            const filesToCheck = ['.fset', '.fset3', '.iset'];
+            
+            let filesChecked = 0;
+            let filesFound = 0;
+            
+            filesToCheck.forEach(ext => {
+                fetch(nftPath + ext)
+                    .then(response => {
+                        filesChecked++;
+                        if (response.ok) {
+                            filesFound++;
+                            console.log(`Found: ${nftPath}${ext}`);
+                        } else {
+                            console.error(`Missing: ${nftPath}${ext}`);
+                        }
+                        
+                        if (filesChecked === 3) {
+                            if (filesFound === 3) {
+                                statusElement.textContent = 'All NFT files found - Ready to scan';
+                                debugElement.textContent = 'All NFT files loaded';
+                            } else {
+                                statusElement.textContent = `Missing ${3-filesFound} NFT files`;
+                                debugElement.textContent = `ERROR: Missing NFT files (${filesFound}/3)`;
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        filesChecked++;
+                        console.error(`Error checking ${nftPath}${ext}:`, error);
+                        
+                        if (filesChecked === 3) {
+                            statusElement.textContent = 'Error checking NFT files';
+                            debugElement.textContent = 'ERROR: Cannot check NFT files';
+                        }
+                    });
+            });
+        });
+
+        // Mobile tap to play fallback
+        document.addEventListener('touchstart', () => {
+            if (markerFound && video && video.paused) {
+                video.play().catch(e => console.log('Touch play failed:', e));
+            }
+        }, { once: true });
+    </script>
+</body>
 </html>
-
