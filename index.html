@@ -79,5 +79,24 @@ marker.addEventListener('markerFound', () => {
 marker.addEventListener('markerLost', () => {
     video.pause();
 });
+
+      AFRAME.registerComponent('markerhandler', {
+        init: function () {
+          this.el.addEventListener('markerFound', () => {
+            var check = this.el.getAttribute("url");
+            alert(check);
+            // document.getElementById('show1').style.bottom = "0";
+            // document.getElementById('show2').style.bottom = "-110vh";
+            // document.getElementById('show3').style.bottom = "-110vh";
+          });
+          
+          this.el.addEventListener('markerLost', () => {
+            // document.getElementById('show1').style.bottom = "-110vh";
+            // document.getElementById('show2').style.bottom = "-110vh";
+            // document.getElementById('show3').style.bottom = "-110vh";
+          });
+        }
+      });
 </script>
+
 </html>
