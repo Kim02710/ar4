@@ -77,38 +77,52 @@
             markerhandler
             id="nft-marker"
         >
-            <!-- Try multiple orientations and positions -->
+            <!-- Full-size video plane covering entire marker -->
             <a-plane
                 id="video-plane"
-                position="0 0 0"
+                position="0 0 0.01"
                 rotation="-90 0 0"
-                width="1"
-                height="1"
-                material="src: #video; transparent: false; alphaTest: 0;"
+                width="5"
+                height="5"
+                material="src: #video; transparent: false; alphaTest: 0; fit: cover;"
                 visible="true"
                 animation__show="property: material.opacity; from: 0; to: 1; dur: 1000; startEvents: markerFound"
                 animation__hide="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: markerLost"
             ></a-plane>
             
-            <!-- Backup plane with different rotation -->
+            <!-- Backup full-size plane with different rotation -->
             <a-plane
                 id="video-plane-2"
-                position="0 0.5 0"
+                position="0 0 0.02"
                 rotation="0 0 0"
-                width="1"
-                height="1"
-                material="src: #video; transparent: false; side: double;"
+                width="5"
+                height="5"
+                material="src: #video; transparent: false; side: double; fit: cover;"
                 visible="true"
                 animation__show2="property: material.opacity; from: 0; to: 1; dur: 1000; startEvents: markerFound"
                 animation__hide2="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: markerLost"
             ></a-plane>
             
+            <!-- Extra large backup plane -->
+            <a-plane
+                id="video-plane-3"
+                position="0 0 0.03"
+                rotation="-90 0 0"
+                width="10"
+                height="10"
+                material="src: #video; transparent: false; alphaTest: 0; fit: fill;"
+                visible="true"
+                opacity="0.9"
+                animation__show3="property: material.opacity; from: 0; to: 0.9; dur: 1000; startEvents: markerFound"
+                animation__hide3="property: material.opacity; from: 0.9; to: 0; dur: 500; startEvents: markerLost"
+            ></a-plane>
+            
             <!-- Debug sphere to confirm marker detection -->
             <a-sphere
-                position="0 1 0"
-                radius="0.2"
+                position="0 0 3"
+                radius="0.5"
                 color="red"
-                animation__bounce="property: position; to: 0 1.5 0; dir: alternate; loop: true; dur: 1000"
+                animation__bounce="property: position; to: 0 0 4; dir: alternate; loop: true; dur: 1000"
                 visible="true"
             ></a-sphere>
         </a-nft>
@@ -136,6 +150,7 @@
                 // Make planes visible and start video
                 const videoPlane = document.querySelector('#video-plane');
                 const videoPlane2 = document.querySelector('#video-plane-2');
+                const videoPlane3 = document.querySelector('#video-plane-3');
                 
                 if (videoPlane) {
                     videoPlane.setAttribute('visible', true);
@@ -144,6 +159,10 @@
                 if (videoPlane2) {
                     videoPlane2.setAttribute('visible', true);
                     videoPlane2.setAttribute('material', 'opacity', 1);
+                }
+                if (videoPlane3) {
+                    videoPlane3.setAttribute('visible', true);
+                    videoPlane3.setAttribute('material', 'opacity', 0.9);
                 }
                 
                 if (video) {
@@ -170,9 +189,11 @@
                 // Hide planes
                 const videoPlane = document.querySelector('#video-plane');
                 const videoPlane2 = document.querySelector('#video-plane-2');
+                const videoPlane3 = document.querySelector('#video-plane-3');
                 
                 if (videoPlane) videoPlane.setAttribute('material', 'opacity', 0);
                 if (videoPlane2) videoPlane2.setAttribute('material', 'opacity', 0);
+                if (videoPlane3) videoPlane3.setAttribute('material', 'opacity', 0);
                 
                 if (video) {
                     video.pause();
