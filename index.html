@@ -67,28 +67,28 @@
         </a-assets>
 
         <!-- FIXED: Added markerhandler component and proper structure -->
-       <a-nft
+      <a-nft
     type="nft"
     url="ar4/veil"
     smooth="true"
     smoothCount="10"
     smoothTolerance="0.01"
     smoothThreshold="5"
-    markerhandler
     id="nft-marker"
+    emitevents="true"
+    registerevents="true"
 >
-    <!-- Video plane laying flat on top of the marker with original aspect ratio -->
+    <!-- Single video plane positioned correctly on top of marker -->
     <a-plane
         id="video-plane"
-        position="0 0.001 0"
-        rotation="-90 0 0"
-        width="150"  
-        height="150"
-        material="src: #video; transparent: true; alphaTest: 0.5; opacity: 1; side: double;"
-        visible="true"
-        animation__show="property: material.opacity; from: 0; to: 1; dur: 1000; startEvents: markerFound"
-        animation__hide="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: markerLost"
+        position="0 0.01 0"  <!-- Increased height slightly above marker -->
+        rotation="-90 0 0"   <!-- Flat to lay on marker -->
+        width="200"          <!-- Increased size -->
+        height="200"         <!-- Increased size -->
+        material="src: #video; transparent: true; alphaTest: 0.1; opacity: 1;"
+        visible="false"      <!-- Start hidden -->
     ></a-plane>
+</a-nft>
     
     <!-- Debug sphere to confirm marker detection -->
     <a-sphere
@@ -281,6 +281,7 @@
     </script>
 </body>
 </html>
+
 
 
 
