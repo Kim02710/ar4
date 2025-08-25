@@ -3,27 +3,21 @@
 <head>
     <meta charset="utf-8">
     <title>WebAR with NFT Marker and Video</title>
-    <!-- Use A-Frame, AR.js for NFT tracking, and Tailwind for styling the UI -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Set the viewport for proper scaling on mobile devices -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Apply the Inter font and a consistent background */
         body {
             font-family: 'Inter', sans-serif;
             margin: 0;
             overflow: hidden;
         }
-
-        /* Style the main information panel with Tailwind classes */
         #info {
             @apply absolute top-4 left-4 bg-gray-900 text-white p-4 rounded-lg z-50 shadow-lg;
             background: rgba(0,0,0,0.7);
         }
 
-        /* Style the debug panel */
         #debug {
             @apply absolute bottom-4 left-4 bg-red-800 text-white p-2 rounded-lg z-50 text-xs shadow-lg;
             background: rgba(255,0,0,0.7);
@@ -31,27 +25,23 @@
     </style>
 </head>
 <body>
-    <!-- User-facing information panel -->
     <div id="info">
         <p class="font-bold">Point your camera at the NFT marker image</p>
         <p class="text-sm mt-1">Status: <span id="status">Loading...</span></p>
     </div>
 
-    <!-- Debugging information panel -->
     <div id="debug">
         <p>Debug: <span id="debug-text">Initializing...</span></p>
     </div>
-
-    <!-- The A-Frame scene, embedded for a web-based AR experience -->
+    
     <a-scene
         vr-mode-ui="enabled: false;"
         renderer="logarithmicDepthBuffer: true;"
         embedded
         arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
     >
-        <!-- Asset management section to preload resources -->
+    
         <a-assets>
-            <!-- The video asset. Using the user's original local file path. -->
             <video
                 id="video"
                 src="veilshort2.mp4"
@@ -64,7 +54,6 @@
             ></video>
         </a-assets>
 
-        <!-- The NFT marker. The video plane will be a child of this element. -->
         <a-nft
             type="nft"
             url="https://cdn.glitch.global/c3f7360c-25a8-4447-a87f-132e0129f122/veil?v=1719541243555"
@@ -76,11 +65,7 @@
             emitevents="true"
             registerevents="true"
         >
-            <!-- 
-                The video plane. Its position is set to 0 0 0 relative to the NFT marker, 
-                so it appears exactly on the marker's surface. The rotation is adjusted 
-                to be a flat plane. The dimensions are set to a common video aspect ratio.
-            -->
+
             <a-plane
                 id="video-plane"
                 position="0 0 0"
@@ -92,7 +77,6 @@
             ></a-plane>
         </a-nft>
 
-        <!-- The camera entity, which is required for AR.js -->
         <a-entity camera></a-entity>
     </a-scene>
 
@@ -106,7 +90,6 @@
 
             let markerFound = false;
 
-            // Update UI status
             const updateStatus = (status) => {
                 statusElement.textContent = status;
                 console.log(`Status: ${status}`);
@@ -117,17 +100,14 @@
                 console.log(`Debug: ${message}`);
             };
 
-            // Event listener for when the marker is found
             if (marker && video && videoPlane) {
                 marker.addEventListener('markerFound', () => {
                     updateStatus('Marker detected - Playing video');
                     updateDebug('Marker found - Video should play');
                     markerFound = true;
 
-                    // Make the video plane visible
                     videoPlane.setAttribute('visible', true);
-                    
-                    // Attempt to play the video. The promise-based play() is crucial for mobile.
+        
                     video.play().then(() => {
                         updateDebug(`Video playing - Duration: ${video.duration}s`);
                     }).catch(error => {
@@ -136,13 +116,11 @@
                     });
                 });
 
-                // Event listener for when the marker is lost
                 marker.addEventListener('markerLost', () => {
                     updateStatus('Marker lost - Video paused');
                     updateDebug('Marker lost - Video paused');
                     markerFound = false;
                     
-                    // Make the video plane invisible and pause the video
                     videoPlane.setAttribute('visible', false);
                     video.pause();
                 });
@@ -150,7 +128,6 @@
                 updateDebug('ERROR: One or more elements not found');
             }
 
-            // Fallback for mobile devices that require a user interaction to play video
             document.addEventListener('click', () => {
                 if (video.paused && markerFound) {
                     video.play().catch(e => {
@@ -160,7 +137,6 @@
                 }
             }, { once: true });
 
-            // Video event listeners for debugging
             video.addEventListener('loadeddata', () => {
                 updateStatus('Video loaded - Ready to scan');
                 updateDebug('Video loaded successfully');
@@ -174,3 +150,4 @@
     </script>
 </body>
 </html>
+
