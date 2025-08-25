@@ -3,55 +3,55 @@
 <head>
     <meta charset="utf-8">
     <title>WebAR with NFT Marker and Video</title>
+    <!-- Use A-Frame, AR.js for NFT tracking, and Tailwind for styling the UI -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Set the viewport for proper scaling on mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        /* Apply the Inter font and a consistent background */
         body {
+            font-family: 'Inter', sans-serif;
             margin: 0;
             overflow: hidden;
         }
+
+        /* Style the main information panel with Tailwind classes */
         #info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
+            @apply absolute top-4 left-4 bg-gray-900 text-white p-4 rounded-lg z-50 shadow-lg;
             background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            z-index: 100;
-            font-family: Arial, sans-serif;
         }
+
+        /* Style the debug panel */
         #debug {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
+            @apply absolute bottom-4 left-4 bg-red-800 text-white p-2 rounded-lg z-50 text-xs shadow-lg;
             background: rgba(255,0,0,0.7);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 100;
-            font-family: Arial, sans-serif;
-            font-size: 12px;
         }
     </style>
 </head>
 <body>
+    <!-- User-facing information panel -->
     <div id="info">
-        Point your camera at the NFT marker image<br>
-        <small>Status: <span id="status">Loading...</span></small>
-    </div>
-    
-    <div id="debug">
-        Debug: <span id="debug-text">Initializing...</span>
+        <p class="font-bold">Point your camera at the NFT marker image</p>
+        <p class="text-sm mt-1">Status: <span id="status">Loading...</span></p>
     </div>
 
+    <!-- Debugging information panel -->
+    <div id="debug">
+        <p>Debug: <span id="debug-text">Initializing...</span></p>
+    </div>
+
+    <!-- The A-Frame scene, embedded for a web-based AR experience -->
     <a-scene
         vr-mode-ui="enabled: false;"
         renderer="logarithmicDepthBuffer: true;"
         embedded
         arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
     >
+        <!-- Asset management section to preload resources -->
         <a-assets>
+            <!-- The video asset. Using the user's original local file path. -->
             <video
                 id="video"
                 src="veilshort2.mp4"
@@ -61,206 +61,116 @@
                 webkit-playsinline
                 playsinline
                 muted
-                autoplay="false"
             ></video>
         </a-assets>
 
-      <a-nft
-    type="nft"
-    url="ar4/veil"
-    smooth="true"
-    smoothCount="10"
-    smoothTolerance="0.01"
-    smoothThreshold="5"
-    id="nft-marker"
-    emitevents="true"
-    registerevents="true"
->
-
-    <a-plane
-        id="video-plane"
-        position="0 0 0 0"  
-        rotation="-90 0 0"   
-        width="170"          
-        height="240"       
-        material="src: #video; transparent: true; alphaTest: 0.1; opacity: 1;"
-        visible="false"    
-    ></a-plane>
-</a-nft>
-    
+        <!-- The NFT marker. The video plane will be a child of this element. -->
+        <a-nft
+            type="nft"
+            url="https://cdn.glitch.global/c3f7360c-25a8-4447-a87f-132e0129f122/veil?v=1719541243555"
+            smooth="true"
+            smoothCount="10"
+            smoothTolerance="0.01"
+            smoothThreshold="5"
+            id="nft-marker"
+            emitevents="true"
+            registerevents="true"
+        >
+            <!-- 
+                The video plane. Its position is set to 0 0 0 relative to the NFT marker, 
+                so it appears exactly on the marker's surface. The rotation is adjusted 
+                to be a flat plane. The dimensions are set to a common video aspect ratio.
+            -->
+            <a-plane
+                id="video-plane"
+                position="0 0 0"
+                rotation="-90 0 0"
+                width="1.778"
+                height="1"
+                material="src: #video; transparent: true; alphaTest: 0.1; opacity: 1;"
+                visible="false"
+            ></a-plane>
         </a-nft>
 
+        <!-- The camera entity, which is required for AR.js -->
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-        // FIXED: Correct video element reference
-        const video = document.querySelector('#video');
-        const marker = document.querySelector('#nft-marker');
-        const statusElement = document.querySelector('#status');
-        const debugElement = document.querySelector('#debug-text');
-        
-        let markerFound = false;
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.querySelector('#video');
+            const marker = document.querySelector('#nft-marker');
+            const videoPlane = document.querySelector('#video-plane');
+            const statusElement = document.querySelector('#status');
+            const debugElement = document.querySelector('#debug-text');
 
-        // FIXED: Proper event listeners with error handling
-        if (marker) {
-            marker.addEventListener('markerFound', () => {
-                console.log('Marker found!');
-                markerFound = true;
-                statusElement.textContent = 'Marker detected - Playing video';
-                debugElement.textContent = 'Marker found - Video should play';
-                
-                // Make planes visible and start video
-                const videoPlane = document.querySelector('#video-plane');
-                const videoPlane2 = document.querySelector('#video-plane-2');
-                const videoPlane3 = document.querySelector('#video-plane-3');
-                
-                if (videoPlane) {
+            let markerFound = false;
+
+            // Update UI status
+            const updateStatus = (status) => {
+                statusElement.textContent = status;
+                console.log(`Status: ${status}`);
+            };
+
+            const updateDebug = (message) => {
+                debugElement.textContent = message;
+                console.log(`Debug: ${message}`);
+            };
+
+            // Event listener for when the marker is found
+            if (marker && video && videoPlane) {
+                marker.addEventListener('markerFound', () => {
+                    updateStatus('Marker detected - Playing video');
+                    updateDebug('Marker found - Video should play');
+                    markerFound = true;
+
+                    // Make the video plane visible
                     videoPlane.setAttribute('visible', true);
-                    videoPlane.setAttribute('material', 'opacity', 1);
-                }
-                if (videoPlane2) {
-                    videoPlane2.setAttribute('visible', true);
-                    videoPlane2.setAttribute('material', 'opacity', 1);
-                }
-                if (videoPlane3) {
-                    videoPlane3.setAttribute('visible', true);
-                    videoPlane3.setAttribute('material', 'opacity', 0.9);
-                }
-                
-                if (video) {
-                    // Reset video to beginning
-                    video.currentTime = 0;
+                    
+                    // Attempt to play the video. The promise-based play() is crucial for mobile.
                     video.play().then(() => {
-                        console.log('Video playing successfully');
-                        debugElement.textContent = `Video playing - Duration: ${video.duration}s`;
+                        updateDebug(`Video playing - Duration: ${video.duration}s`);
                     }).catch(error => {
+                        updateDebug('Video play failed: ' + error.message);
                         console.error('Video play failed:', error);
-                        debugElement.textContent = 'Video play failed: ' + error.message;
                     });
-                } else {
-                    debugElement.textContent = 'Video element not found';
-                }
-            });
+                });
 
-            marker.addEventListener('markerLost', () => {
-                console.log('Marker lost!');
-                markerFound = false;
-                statusElement.textContent = 'Marker lost - Video paused';
-                debugElement.textContent = 'Marker lost - Video paused';
-                
-                // Hide planes
-                const videoPlane = document.querySelector('#video-plane');
-                const videoPlane2 = document.querySelector('#video-plane-2');
-                const videoPlane3 = document.querySelector('#video-plane-3');
-                
-                if (videoPlane) videoPlane.setAttribute('material', 'opacity', 0);
-                if (videoPlane2) videoPlane2.setAttribute('material', 'opacity', 0);
-                if (videoPlane3) videoPlane3.setAttribute('material', 'opacity', 0);
-                
-                if (video) {
+                // Event listener for when the marker is lost
+                marker.addEventListener('markerLost', () => {
+                    updateStatus('Marker lost - Video paused');
+                    updateDebug('Marker lost - Video paused');
+                    markerFound = false;
+                    
+                    // Make the video plane invisible and pause the video
+                    videoPlane.setAttribute('visible', false);
                     video.pause();
-                }
-            });
-        } else {
-            debugElement.textContent = 'ERROR: Marker element not found';
-        }
-
-        // FIXED: Proper component registration with error handling
-        AFRAME.registerComponent('markerhandler', {
-            init: function () {
-                console.log('Markerhandler component initialized');
-                debugElement.textContent = 'Markerhandler initialized';
-                
-                this.el.addEventListener('markerFound', () => {
-                    console.log('markerFound event triggered');
-                    var check = this.el.getAttribute("url");
-                    console.log('Marker URL:', check);
-                    debugElement.textContent = 'Marker found: ' + check;
                 });
-                
-                this.el.addEventListener('markerLost', () => {
-                    console.log('markerLost event triggered');
-                    debugElement.textContent = 'Marker lost';
-                });
+            } else {
+                updateDebug('ERROR: One or more elements not found');
             }
-        });
 
-        // Additional debugging
-        video.addEventListener('loadeddata', () => {
-            console.log('Video loaded');
-            statusElement.textContent = 'Video loaded - Ready to scan';
-            debugElement.textContent = 'Video loaded successfully';
-        });
-
-        video.addEventListener('error', (e) => {
-            console.error('Video error:', e);
-            debugElement.textContent = 'Video error: ' + e.message;
-        });
-
-        // Check if NFT files exist
-        window.addEventListener('load', () => {
-            statusElement.textContent = 'Checking NFT files...';
-            
-            // Try to fetch NFT files to check if they exist
-            const nftPath = 'ar4/veil';
-            const filesToCheck = ['.fset', '.fset3', '.iset'];
-            
-            let filesChecked = 0;
-            let filesFound = 0;
-            
-            filesToCheck.forEach(ext => {
-                fetch(nftPath + ext)
-                    .then(response => {
-                        filesChecked++;
-                        if (response.ok) {
-                            filesFound++;
-                            console.log(`Found: ${nftPath}${ext}`);
-                        } else {
-                            console.error(`Missing: ${nftPath}${ext}`);
-                        }
-                        
-                        if (filesChecked === 3) {
-                            if (filesFound === 3) {
-                                statusElement.textContent = 'All NFT files found - Ready to scan';
-                                debugElement.textContent = 'All NFT files loaded';
-                            } else {
-                                statusElement.textContent = `Missing ${3-filesFound} NFT files`;
-                                debugElement.textContent = `ERROR: Missing NFT files (${filesFound}/3)`;
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        filesChecked++;
-                        console.error(`Error checking ${nftPath}${ext}:`, error);
-                        
-                        if (filesChecked === 3) {
-                            statusElement.textContent = 'Error checking NFT files';
-                            debugElement.textContent = 'ERROR: Cannot check NFT files';
-                        }
+            // Fallback for mobile devices that require a user interaction to play video
+            document.addEventListener('click', () => {
+                if (video.paused && markerFound) {
+                    video.play().catch(e => {
+                        updateDebug('Touch play failed: ' + e.message);
+                        console.error('Touch play failed:', e);
                     });
+                }
+            }, { once: true });
+
+            // Video event listeners for debugging
+            video.addEventListener('loadeddata', () => {
+                updateStatus('Video loaded - Ready to scan');
+                updateDebug('Video loaded successfully');
+            });
+
+            video.addEventListener('error', (e) => {
+                updateDebug('Video error: ' + (e.message || e.srcElement.error.message));
+                console.error('Video error:', e);
             });
         });
-
-        // Mobile tap to play fallback
-        document.addEventListener('touchstart', () => {
-            if (markerFound && video && video.paused) {
-                video.play().catch(e => console.log('Touch play failed:', e));
-            }
-        }, { once: true });
-
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
