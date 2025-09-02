@@ -110,21 +110,21 @@
                 
                 // Make planes visible and start video
                 const videoPlane = document.querySelector('#video-plane');
-                const videoPlane2 = document.querySelector('#video-plane-2');
-                const videoPlane3 = document.querySelector('#video-plane-3');
+                //const videoPlane2 = document.querySelector('#video-plane-2');
+                //const videoPlane3 = document.querySelector('#video-plane-3');
                 
                 if (videoPlane) {
                     videoPlane.setAttribute('visible', true);
                     videoPlane.setAttribute('material', 'opacity', 1);
                 }
-                if (videoPlane2) {
-                    videoPlane2.setAttribute('visible', true);
-                    videoPlane2.setAttribute('material', 'opacity', 1);
-                }
-                if (videoPlane3) {
-                    videoPlane3.setAttribute('visible', true);
-                    videoPlane3.setAttribute('material', 'opacity', 0.9);
-                }
+                //if (videoPlane2) {
+                  //  videoPlane2.setAttribute('visible', true);
+                    //videoPlane2.setAttribute('material', 'opacity', 1);
+                //}
+               // if (videoPlane3) {
+                    //videoPlane3.setAttribute('visible', true);
+                    //videoPlane3.setAttribute('material', 'opacity', 0.9);
+               /// }
                 
                 if (video) {
                     // Reset video to beginning
@@ -149,12 +149,12 @@
                 
                 // Hide planes
                 const videoPlane = document.querySelector('#video-plane');
-                const videoPlane2 = document.querySelector('#video-plane-2');
-                const videoPlane3 = document.querySelector('#video-plane-3');
+               // const videoPlane2 = document.querySelector('#video-plane-2');
+               // const videoPlane3 = document.querySelector('#video-plane-3');
                 
                 if (videoPlane) videoPlane.setAttribute('material', 'opacity', 0);
-                if (videoPlane2) videoPlane2.setAttribute('material', 'opacity', 0);
-                if (videoPlane3) videoPlane3.setAttribute('material', 'opacity', 0);
+                //if (videoPlane2) videoPlane2.setAttribute('material', 'opacity', 0);
+                //if (videoPlane3) videoPlane3.setAttribute('material', 'opacity', 0);
                 
                 if (video) {
                     video.pause();
@@ -174,6 +174,7 @@
     </script>
 </body>
 </html>
+
 
 
 
